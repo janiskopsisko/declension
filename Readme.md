@@ -20,3 +20,7 @@ After installation open terminal and check `node --version` if node is installed
 In terminal run `node app.js FILEPATH.txt`
 
 Result will be stored in `.../declension/res/a.txt b.txt ...`
+
+## Options
+
+To clear the res folder add `--clear flag`
