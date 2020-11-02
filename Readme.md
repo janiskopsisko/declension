@@ -17,10 +17,11 @@ After installation open terminal and check `node --version` if node is installed
 
 ## Usage
 
-In terminal run `node app.js FILEPATH.txt`
+In terminal run `npm run start`
+
+- insert the correct path to the file (default: test.txt)
+- check if you would like to clear the res folder (default: Yes)
 
 Result will be stored in `.../declension/res/a.txt b.txt ...`
 
 ## Options
-
-To clear the res folder add `--clear flag`
