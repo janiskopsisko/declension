@@ -10,11 +10,13 @@ After installation open terminal and check `node --version` if node is installed
 
 ## Installation
 
-- Download this project from git and unzip it
-- Create a new folder for this project `mkdir declension`
-- Go into folder in terminal `cd declension`
+- go to folder where you want to crate the app i.e `C:\Users\USERNAME\code\`
+- Download this project from git with `git clone git@github.com:janiskopsisko/declension.git`
+- In terminal type `cd declension` to enter the folder 
 - Install all dependencies with `npm install`
 
 ## Usage
 
 In terminal run `node app.js FILEPATH.txt`
+
+Result will be stored in `.../declension/res/a.txt b.txt ...`
