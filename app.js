@@ -85,19 +85,16 @@ async function init() {
   // open first tab for punctutation checking
   let punctuation = await getPunctuation(browser, lines)
   log(`Got punctuation for ${punctuation.length} words`);
-
   // use remote api to get lema of the words
   let lema = await getLema(punctuation)
   log(`Got lema for ${lema.length} words`);
 
   // open another tab for declension calculation
   const declension = await getDeclension(browser, lema)
-  log(`Got declension result`);
 
   // close the puppeteer
   browser.close();
 
-  writeToFile(declension)
 } // init
 
 
@@ -121,7 +118,11 @@ async function getPunctuation(browser, lines) {
 
     const response = await page.waitForResponse(response => response.url() === 'https://lindat.mff.cuni.cz/services/korektor/api/suggestions');
     const json = await response.json();
-    result.push(json.result[0][0])
+    if(json.result[0].length > 1 ) {
+      result.push(json.result[0][1])
+    }else {
+      result.push(json.result[0][0])
+    }
   }
   return result
 } // getPunctuation
@@ -134,12 +135,18 @@ async function getPunctuation(browser, lines) {
  */
 async function getLema(lines) {
   const result = []
-  for await (const line of lines) {
-    const uri = encodeURI('https://nlp.fi.muni.cz/languageservices/service.py?call=tagger&lang=cs&output=json&text=' + line)
-    const response = await axios.get(uri);
-    result.push(response.data.vertical[1][1])
-  }
+  const req = lines.join(' ')
+  const uri = encodeURI('https://nlp.fi.muni.cz/languageservices/service.py?call=tagger&lang=cs&output=json&text=' + req)
+  const response = await axios.post(uri);
+
+  // remove first and last element
+  response.data.vertical.shift()
+  response.data.vertical.pop()
+  response.data.vertical.forEach(res=>{
+    result.push(res[1])
+  })
   return result
+  
 } // getLema
 
 
@@ -180,17 +187,26 @@ async function getDeclension(browser, lines) {
     if (!result[key]) {
       result[key] = {}
     }
-    result[key][deburr(line)] = uniq(unique)
+    const res = `${deburr(line)}: ${uniq(unique).join(', ')} \n`
+    writeLineToFile(key, res)
   }
-  return result
+  return true
 } // getDeclension
-
 
 
 /**
  * Writes words to a separate file named by the first letter of the word beeing processed
- * @param {object} storage 
+ * @param {string} f - filename
+ * @param {string} line - line in format  xxx: a, b, c
  */
+function writeLineToFile(f, line) {
+  fs.appendFileSync(resolve(__dirname, 'res', f + '.txt'), line, {
+    flags: "a+"
+  });
+  return log(`Stored ${line} to ${f}.txt`, true);
+}
+
+
 function writeToFile(storage) {
   const keys = Object.keys(storage)
   let counter = 0
